@@ -472,7 +472,17 @@
                         UI.plantMathRHPZBox.classList.remove('hidden'); UI.plantMathGain.innerHTML = '\\( \\frac{V_{in}}{(1-D)^2} \\)'; UI.plantMathF0.innerHTML = '\\( \\frac{1-D}{2\\pi\\sqrt{LC}} \\)'; UI.plantMathRHPZ.innerHTML = '\\( \\frac{R (1-D)^2}{2\\pi D L} \\)';
                     }
                 }
-                if (window.MathJax) MathJax.typesetPromise();
+                if (window.MathJax) {
+                    MathJax.typesetPromise([
+                        UI.introText,
+                        UI.compFormulaDisplay,
+                        UI.compPoleZeroGrid,
+                        UI.plantFormulaDisplay,
+                        UI.plantMathGain,
+                        UI.plantMathF0,
+                        UI.plantMathRHPZ
+                    ]);
+                }
 
                 const buildSlider = (id, label, min, max, step, val, unit, color) => `
                     <div><div class="flex justify-between items-center mb-1"><label class="text-xs font-semibold text-neutral-300">${label}</label><span class="text-xs text-${color}-400 font-mono"><span id="val_${id}">${val}</span> ${unit}</span></div><input type="range" id="slider_${id}" data-key="${id}" min="${min}" max="${max}" step="${step}" value="${val}" class="slider-${color}"></div>`;

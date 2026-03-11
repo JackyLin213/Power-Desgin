@@ -489,7 +489,8 @@
                 updateSystem();
                 drawCircuit(null);
                 
-                if (window.MathJax) { MathJax.typesetPromise(); }
+                // 修正：移除全域重新渲染，避免重複套用樣式導致字體無限變大
+                // if (window.MathJax) { MathJax.typesetPromise(); }
             }
 
             UI.typeSelect.addEventListener('change', (e) => {

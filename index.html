@@ -5,49 +5,40 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>電源控制迴路互動式解析 (Compensators & Plants)</title>
     
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
             theme: {
                 extend: {
                     colors: {
-                        brand: {
-                            50: '#f0fdfa', 100: '#ccfbf1', 500: '#14b8a6', 600: '#0d9488', 900: '#134e4a',
-                        },
-                        plant: {
-                            50: '#fdf4ff', 100: '#fae8ff', 500: '#d946ef', 600: '#c026d3', 900: '#701a75',
-                        },
-                        neutral: {
-                            50: '#f8fafc', 100: '#f1f5f9', 800: '#1e293b', 900: '#0f172a',
-                        }
+                        brand: { 50: '#f0fdfa', 100: '#ccfbf1', 500: '#14b8a6', 600: '#0d9488', 900: '#134e4a' },
+                        plant: { 50: '#fdf4ff', 100: '#fae8ff', 500: '#d946ef', 600: '#c026d3', 900: '#701a75' },
+                        neutral: { 50: '#f8fafc', 100: '#f1f5f9', 800: '#1e293b', 900: '#0f172a' }
                     }
                 }
             }
         }
     </script>
 
+    <!-- MathJax for rendering equations -->
     <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
     <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 
+    <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <style>
         body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
         
-        .chart-container {
-            position: relative; width: 100%; max-width: 100%; margin: 0 auto;
-            height: 35vh; max-height: 350px; min-height: 250px;
-        }
+        .chart-container { position: relative; width: 100%; max-width: 100%; margin: 0 auto; height: 35vh; max-height: 350px; min-height: 250px; }
 
-        /* 統一滑桿樣式 */
         input[type=range] { -webkit-appearance: none; width: 100%; background: transparent; }
         input[type=range]::-webkit-slider-thumb {
             -webkit-appearance: none; height: 16px; width: 16px; border-radius: 50%;
             background: currentColor; cursor: pointer; margin-top: -6px;
         }
-        input[type=range]::-webkit-slider-runnable-track {
-            width: 100%; height: 4px; cursor: pointer; background: #cbd5e1; border-radius: 2px;
-        }
+        input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 4px; cursor: pointer; background: #cbd5e1; border-radius: 2px; }
         
         .slider-brand::-webkit-slider-thumb { background: #0d9488; }
         .slider-plant::-webkit-slider-thumb { background: #c026d3; }
@@ -60,6 +51,7 @@
 </head>
 <body class="bg-neutral-50 text-neutral-800 antialiased">
 
+    <!-- Top Navigation -->
     <header class="bg-white border-b border-neutral-200 sticky top-0 z-50 shadow-sm">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex flex-col sm:flex-row justify-between items-center gap-4">
             <h1 class="text-2xl font-bold text-neutral-900 flex items-center gap-2">
@@ -85,116 +77,130 @@
         </div>
     </header>
 
+    <!-- Main Content -->
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
 
+            <!-- Left Column: Theory and Derivation -->
             <div class="lg:col-span-5 space-y-6">
                 
+                <!-- Section 1: Introduction & Circuit -->
                 <section class="bg-white rounded-xl shadow-sm border border-neutral-200 p-6">
                     <h2 id="sec1Title" class="text-xl font-bold text-neutral-900 mb-3 border-b-2 border-brand-500 inline-block pb-1">1. 簡介與實體架構</h2>
-                    
-                    <div id="introText" class="text-neutral-600 mb-2 leading-relaxed text-sm min-h-[4rem]">
-                        </div>
-                    
+                    <div id="introText" class="text-neutral-600 mb-2 leading-relaxed text-sm min-h-[4rem]"></div>
                     <div class="bg-neutral-50 rounded-lg p-2 border border-neutral-200 mt-4 mb-2 shadow-inner relative">
                         <div class="text-xs text-neutral-500 mb-1 text-center font-bold">✨ 實體電路圖 (滑動右側滑桿可標示對應元件)</div>
-                        <canvas id="circuitCanvas" width="600" height="260" class="w-full max-w-full mx-auto"></canvas>
+                        <canvas id="circuitCanvas" width="680" height="260" class="w-full max-w-full mx-auto"></canvas>
                     </div>
                 </section>
 
+                <!-- Section 2: Mathematical Derivation -->
                 <section class="bg-white rounded-xl shadow-sm border border-neutral-200 p-6">
                     <h2 id="sec2Title" class="text-xl font-bold text-neutral-900 mb-4 border-b-2 border-brand-500 inline-block pb-1">2. 轉移函數分析</h2>
 
+                    <!-- COMP Math Block -->
                     <div id="mathBlockComp" class="block">
+                        <div class="border border-neutral-200 rounded-lg overflow-hidden mb-6">
+                            <button id="toggleDerivation" class="w-full bg-neutral-50 px-4 py-3 flex justify-between items-center hover:bg-neutral-100 transition-colors focus:outline-none">
+                                <span class="font-semibold text-neutral-700">檢視詳細數學推導 (AC 小信號分析)</span>
+                                <span id="derivationIcon" class="text-neutral-500 font-bold">＋</span>
+                            </button>
+                            <div id="derivationContent" class="hidden p-4 bg-white border-t border-neutral-200 space-y-4 text-sm text-neutral-700">
+                                <div class="bg-blue-50 p-3 rounded text-blue-800 mb-4 text-xs leading-relaxed">
+                                    <strong>💡 關於分壓電阻 (\(R_{bot}\)) 與參考電壓 (\(V_{REF}\))：</strong><br>
+                                    AC 分析時，直流 \(V_{REF}\) 視為 AC 接地。根據虛接地原理，\(V_{FB}\) 的 AC 小信號也為 0。因此，無 AC 訊號電流流過 \(R_{bot}\)，<strong>\(R_{bot}\) 並不會出現在轉移函數 \(H(s)\) 中</strong>。
+                                </div>
+                                <div id="deriv-type-1" class="hidden space-y-3">
+                                    <div class="bg-neutral-50 p-3 rounded">
+                                        <h3 class="font-bold text-neutral-800 mb-2">步驟 1：阻抗計算</h3>
+                                        <p>輸入阻抗：\(Z_{in}(s) = R_1\)，回授阻抗：\(Z_f(s) = \frac{1}{sC_1}\)</p>
+                                    </div>
+                                    <div class="bg-neutral-50 p-3 rounded">
+                                        <h3 class="font-bold text-neutral-800 mb-2">步驟 2：組合轉移函數</h3>
+                                        <p class="overflow-x-auto">$$H(s) = -\frac{Z_f(s)}{Z_{in}(s)} = -\frac{1}{s R_1 C_1}$$</p>
+                                    </div>
+                                </div>
+                                <div id="deriv-type-2" class="hidden space-y-3">
+                                    <div class="bg-neutral-50 p-3 rounded">
+                                        <h3 class="font-bold text-neutral-800 mb-2">步驟 1：阻抗計算</h3>
+                                        <p>輸入阻抗：\(Z_{in}(s) = R_1\)</p>
+                                        <p>\(Z_f(s) = \left( R_2 + \frac{1}{sC_2} \right) \parallel \left( \frac{1}{sC_3} \right) = \frac{s R_2 C_2 + 1}{s (C_2 + C_3) \left[ s \frac{R_2 C_2 C_3}{C_2 + C_3} + 1 \right]}\)</p>
+                                    </div>
+                                    <div class="bg-neutral-50 p-3 rounded">
+                                        <h3 class="font-bold text-neutral-800 mb-2">步驟 2：組合轉移函數 (忽略負號)</h3>
+                                        <p class="overflow-x-auto">$$H(s) = \frac{1 + s R_2 C_2}{s R_1 (C_2 + C_3) \left[ 1 + s R_2 \left(\frac{C_2 C_3}{C_2 + C_3}\right) \right]}$$</p>
+                                    </div>
+                                </div>
+                                <div id="deriv-type-3" class="hidden space-y-3">
+                                    <div class="bg-neutral-50 p-3 rounded">
+                                        <h3 class="font-bold text-neutral-800 mb-2">步驟 1：輸入阻抗 \(Z_{in}(s)\)</h3>
+                                        <p class="overflow-x-auto">$$Z_{in}(s) = R_1 \parallel \left( R_3 + \frac{1}{sC_1} \right) = \frac{R_1 (s R_3 C_1 + 1)}{s (R_1 + R_3) C_1 + 1}$$</p>
+                                    </div>
+                                    <div class="bg-neutral-50 p-3 rounded">
+                                        <h3 class="font-bold text-neutral-800 mb-2">步驟 2：回授阻抗 \(Z_f(s)\)</h3>
+                                        <p class="overflow-x-auto">$$Z_f(s) = \left( R_2 + \frac{1}{sC_2} \right) \parallel \left( \frac{1}{sC_3} \right) = \frac{s R_2 C_2 + 1}{s (C_2 + C_3) \left[ s \frac{R_2 C_2 C_3}{C_2 + C_3} + 1 \right]}$$</p>
+                                    </div>
+                                    <div class="bg-neutral-50 p-3 rounded">
+                                        <h3 class="font-bold text-neutral-800 mb-2">步驟 3：組合轉移函數</h3>
+                                        <p class="overflow-x-auto text-xs sm:text-sm">$$H(s) = \frac{1}{s R_1 (C_2 + C_3)} \cdot \frac{(s R_2 C_2 + 1) \left[ s (R_1 + R_3) C_1 + 1 \right]}{(s R_3 C_1 + 1) \left[ s \frac{R_2 C_2 C_3}{C_2 + C_3} + 1 \right]}$$</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                         <div class="mt-2 p-4 bg-brand-50 border border-brand-100 rounded-lg">
                             <p class="text-sm font-semibold text-brand-900 mb-2">標準形式極零點分析：</p>
                             <p id="compFormulaDisplay" class="text-sm text-brand-800 overflow-x-auto text-center py-2"></p>
-                            
-                            <div id="compPoleZeroGrid" class="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm text-brand-900">
-                                </div>
+                            <div id="compPoleZeroGrid" class="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm text-brand-900"></div>
                         </div>
                     </div>
 
+                    <!-- PLANT Math Block -->
                     <div id="mathBlockPlant" class="hidden">
                         <div class="mt-2 p-4 bg-plant-50 border border-plant-100 rounded-lg">
                             <p class="text-sm font-semibold text-plant-900 mb-2">控制到輸出轉移函數 \(G_{vd}(s) = \frac{\hat{v}_{out}(s)}{\hat{d}(s)}\)：</p>
                             <p id="plantFormulaDisplay" class="text-sm text-plant-800 overflow-x-auto text-center py-2"></p>
-                            
                             <div class="mt-4 grid grid-cols-1 gap-3 text-sm text-plant-900">
                                 <div class="bg-white/60 p-3 rounded border border-plant-100 shadow-sm text-center">
-                                    <span class="font-bold block mb-1 text-plant-700">直流增益 (\(G_{vd0}\))</span>
-                                    <span id="plantMathGain"></span>
+                                    <span class="font-bold block mb-1 text-plant-700">直流增益 (\(G_{vd0}\))</span><span id="plantMathGain"></span>
                                 </div>
                                 <div class="bg-white/60 p-3 rounded border border-plant-100 shadow-sm text-center">
-                                    <span class="font-bold block mb-1 text-plant-700">LC 雙極點諧振頻率 (\(f_0\))</span>
-                                    <span id="plantMathF0"></span>
+                                    <span class="font-bold block mb-1 text-plant-700">LC 雙極點諧振頻率 (\(f_0\))</span><span id="plantMathF0"></span>
                                 </div>
                                 <div class="bg-white/60 p-3 rounded border border-plant-100 shadow-sm text-center">
-                                    <span class="font-bold block mb-1 text-plant-700">ESR 零點 (\(f_{esr}\))</span>
-                                    \( f_{esr} = \frac{1}{2\pi R_{esr} C} \)
+                                    <span class="font-bold block mb-1 text-plant-700">ESR 零點 (\(f_{esr}\))</span>\( f_{esr} = \frac{1}{2\pi R_{esr} C} \)
                                 </div>
                                 <div id="plantMathRHPZBox" class="bg-white/60 p-3 rounded border border-plant-100 shadow-sm text-center hidden">
-                                    <span class="font-bold block mb-1 text-red-600">右半平面零點 RHPZ (\(f_{rhp}\))</span>
-                                    <span id="plantMathRHPZ"></span>
+                                    <span class="font-bold block mb-1 text-red-600">右半平面零點 RHPZ (\(f_{rhp}\))</span><span id="plantMathRHPZ"></span>
                                 </div>
                             </div>
                         </div>
                     </div>
-
                 </section>
             </div>
 
+            <!-- Right Column: Interactive Dashboard -->
             <div class="lg:col-span-7 space-y-4 lg:sticky lg:top-20 self-start">
-                
                 <div class="bg-neutral-900 rounded-2xl shadow-xl overflow-hidden text-neutral-100 flex flex-col border border-neutral-700">
                     <div class="p-3 border-b border-neutral-700 bg-neutral-800 flex justify-between items-center">
-                        <h2 class="text-base font-bold text-white flex items-center gap-2">
-                            <span class="text-lg">📊</span> 即時頻率響應波德圖
-                        </h2>
-                        <button id="resetBtn" class="text-xs bg-neutral-700 hover:bg-neutral-600 text-neutral-300 px-3 py-1 rounded transition-colors">
-                            重置參數
-                        </button>
+                        <h2 class="text-base font-bold text-white flex items-center gap-2"><span class="text-lg">📊</span> 即時頻率響應波德圖</h2>
+                        <button id="resetBtn" class="text-xs bg-neutral-700 hover:bg-neutral-600 text-neutral-300 px-3 py-1 rounded transition-colors">重置參數</button>
                     </div>
-                    
-                    <div id="readoutContainer" class="grid grid-cols-2 sm:grid-cols-5 gap-px bg-neutral-700 text-center text-xs">
-                        </div>
-
+                    <div id="readoutContainer" class="grid grid-cols-2 sm:grid-cols-5 gap-px bg-neutral-700 text-center text-xs"></div>
                     <div class="p-3 bg-white text-neutral-900 space-y-2">
-                        <div class="chart-container" style="height: 28vh; min-height: 200px;">
-                            <canvas id="magChart"></canvas>
-                        </div>
-                        <div class="chart-container border-t border-neutral-100 pt-1" style="height: 28vh; min-height: 200px;">
-                            <canvas id="phaseChart"></canvas>
-                        </div>
+                        <div class="chart-container" style="height: 28vh; min-height: 200px;"><canvas id="magChart"></canvas></div>
+                        <div class="chart-container border-t border-neutral-100 pt-1" style="height: 28vh; min-height: 200px;"><canvas id="phaseChart"></canvas></div>
                     </div>
-
-                    <div id="slidersContainer" class="p-5 bg-neutral-800 grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-4">
-                        </div>
+                    <div id="slidersContainer" class="p-5 bg-neutral-800 grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-4"></div>
                 </div>
-
             </div>
         </div>
     </main>
 
+    <!-- JavaScript Logic -->
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             
-            // --- App State ---
-            let currentMode = 'comp'; // 'comp' or 'plant'
-            let currentSubType = '3'; // '1','2','3' or 'buck','boost','buckboost'
-
-            // --- Parameters ---
-            const defaultCompParams = { R1: 10, R2: 20, R3: 1, C1: 10, C2: 2.2, C3: 100 }; // kOhm, nF, pF
-            const defaultPlantParams = { Vin: 12, Vout: 5, L: 10, C: 100, ESR: 20, Rload: 5 }; // V, V, uH, uF, mOhm, Ohm
-            
-            let pComp = { ...defaultCompParams };
-            let pPlant = { ...defaultPlantParams };
-
-            // Generated Data
-            let compData = { fp0: 0, fz1: 0, fz2: 0, fp1: 0, fp2: 0 };
-            let plantData = { D: 0, Dprime: 0, Gvd0: 0, f0: 0, fesr: 0, frhp: Infinity, Q: 0 };
-
-            // --- UI Elements ---
+            // --- UI Bindings ---
             const UI = {
                 typeSelect: document.getElementById('typeSelect'),
                 logoText: document.getElementById('logoText'),
@@ -210,6 +216,9 @@
                 plantMathF0: document.getElementById('plantMathF0'),
                 plantMathRHPZ: document.getElementById('plantMathRHPZ'),
                 plantMathRHPZBox: document.getElementById('plantMathRHPZBox'),
+                deriv1: document.getElementById('deriv-type-1'),
+                deriv2: document.getElementById('deriv-type-2'),
+                deriv3: document.getElementById('deriv-type-3'),
                 readoutContainer: document.getElementById('readoutContainer'),
                 slidersContainer: document.getElementById('slidersContainer'),
                 resetBtn: document.getElementById('resetBtn'),
@@ -217,24 +226,45 @@
             };
 
             const ctxCanvas = UI.canvas.getContext('2d');
+            
+            // Accordion Toggle
+            const toggleBtn = document.getElementById('toggleDerivation');
+            const content = document.getElementById('derivationContent');
+            const icon = document.getElementById('derivationIcon');
+            toggleBtn.addEventListener('click', () => {
+                content.classList.toggle('hidden');
+                icon.textContent = content.classList.contains('hidden') ? '＋' : '－';
+            });
 
-            // --- Formatter ---
+            // --- State & Config ---
+            let currentMode = 'comp'; 
+            let currentSubType = '3'; 
+
+            const defaultCompParams = { R1: 10, R2: 20, R3: 1, C1: 10, C2: 2.2, C3: 100 }; 
+            const defaultPlantParams = { Vin: 12, Vout: 5, L: 10, C: 100, ESR: 20, Rload: 5 }; 
+            
+            let pComp = { ...defaultCompParams };
+            let pPlant = { ...defaultPlantParams };
+
+            let compData = { fp0: 0, fz1: 0, fz2: 0, fp1: 0, fp2: 0 };
+            let plantData = { D: 0, Dprime: 0, Gvd0: 0, f0: 0, fesr: 0, frhp: Infinity, Q: 0 };
+
+            // --- Formatters ---
             function formatFreq(f) {
                 if (f === Infinity || f === 0 || !isFinite(f)) return '-- ';
+                if (f >= 1e9) return (f / 1e9).toFixed(2) + ' G';
                 if (f >= 1e6) return (f / 1e6).toFixed(2) + ' M';
                 if (f >= 1e3) return (f / 1e3).toFixed(2) + ' k';
                 return f.toFixed(1) + ' ';
             }
 
-            // --- Core Logic: Compensators ---
+            // --- Engineering Calculations ---
             function calcComp() {
-                const r1 = pComp.R1 * 1e3; const r2 = pComp.R2 * 1e3; const r3 = pComp.R3 * 1e3;
-                const c1 = pComp.C1 * 1e-9; const c2 = pComp.C2 * 1e-9; const c3 = pComp.C3 * 1e-12;
+                const r1 = pComp.R1 * 1e3, r2 = pComp.R2 * 1e3, r3 = pComp.R3 * 1e3;
+                const c1 = pComp.C1 * 1e-9, c2 = pComp.C2 * 1e-9, c3 = pComp.C3 * 1e-12;
                 compData = { fp0: 0, fz1: 0, fz2: 0, fp1: 0, fp2: 0 };
-
-                if (currentSubType === '1') {
-                    compData.fp0 = 1 / (2 * Math.PI * r1 * c1);
-                } else if (currentSubType === '2') {
+                if (currentSubType === '1') { compData.fp0 = 1 / (2 * Math.PI * r1 * c1); } 
+                else if (currentSubType === '2') {
                     compData.fp0 = 1 / (2 * Math.PI * r1 * (c2 + c3));
                     compData.fz1 = 1 / (2 * Math.PI * r2 * c2);
                     compData.fp1 = (c2 + c3) / (2 * Math.PI * r2 * c2 * c3);
@@ -247,242 +277,243 @@
                 }
             }
 
-            // --- Core Logic: Plants ---
             function calcPlant() {
-                const L = pPlant.L * 1e-6; const C = pPlant.C * 1e-6;
-                const Resr = pPlant.ESR * 1e-3; const R = pPlant.Rload;
-                let Vin = pPlant.Vin; let Vout = pPlant.Vout;
-
-                plantData = { D: 0, Dprime: 1, Gvd0: 0, f0: 0, fesr: 0, frhp: Infinity, Q: 0 };
-                plantData.fesr = 1 / (2 * Math.PI * Resr * C);
+                const L = pPlant.L * 1e-6, C = pPlant.C * 1e-6, Resr = pPlant.ESR * 1e-3, R = pPlant.Rload;
+                let Vin = pPlant.Vin, Vout = pPlant.Vout;
+                plantData = { D: 0, Dprime: 1, Gvd0: 0, f0: 0, fesr: 1 / (2 * Math.PI * Resr * C), frhp: Infinity, Q: 0 };
 
                 if (currentSubType === 'buck') {
-                    if (Vout > Vin) Vout = Vin * 0.99; // Physical limit
-                    plantData.D = Vout / Vin;
-                    plantData.Gvd0 = Vin;
-                    plantData.f0 = 1 / (2 * Math.PI * Math.sqrt(L * C));
+                    if (Vout > Vin) Vout = Vin * 0.99; 
+                    plantData.D = Vout / Vin; plantData.Gvd0 = Vin; plantData.f0 = 1 / (2 * Math.PI * Math.sqrt(L * C));
                 } else if (currentSubType === 'boost') {
                     if (Vin > Vout) Vout = Vin * 1.01;
-                    plantData.D = 1 - (Vin / Vout);
-                    plantData.Dprime = 1 - plantData.D;
+                    plantData.D = 1 - (Vin / Vout); plantData.Dprime = 1 - plantData.D;
                     plantData.Gvd0 = Vin / Math.pow(plantData.Dprime, 2);
                     plantData.frhp = (R * Math.pow(plantData.Dprime, 2)) / (2 * Math.PI * L);
                     plantData.f0 = plantData.Dprime / (2 * Math.PI * Math.sqrt(L * C));
                 } else if (currentSubType === 'buckboost') {
-                    plantData.D = Vout / (Vin + Vout);
-                    plantData.Dprime = 1 - plantData.D;
+                    plantData.D = Vout / (Vin + Vout); plantData.Dprime = 1 - plantData.D;
                     plantData.Gvd0 = Vin / Math.pow(plantData.Dprime, 2);
                     plantData.frhp = (R * Math.pow(plantData.Dprime, 2)) / (2 * Math.PI * plantData.D * L);
                     plantData.f0 = plantData.Dprime / (2 * Math.PI * Math.sqrt(L * C));
                 }
             }
 
-            // --- Bode Plot Generation ---
+            function getMagPhase(f) {
+                let magDB = 0; let phaseDeg = 0;
+                if (currentMode === 'comp') {
+                    const { fp0, fz1, fz2, fp1, fp2 } = compData;
+                    if (currentSubType === '1') { magDB = 20 * Math.log10(fp0 / f); phaseDeg = -90; } 
+                    else if (currentSubType === '2') {
+                        const mag = (fp0 / f) * Math.sqrt(1 + Math.pow(f / fz1, 2)) / Math.sqrt(1 + Math.pow(f / fp1, 2));
+                        magDB = 20 * Math.log10(mag); phaseDeg = -90 + Math.atan(f / fz1)*(180/Math.PI) - Math.atan(f / fp1)*(180/Math.PI);
+                    } else if (currentSubType === '3') {
+                        const mag = (fp0 / f) * Math.sqrt(1 + Math.pow(f / fz1, 2)) * Math.sqrt(1 + Math.pow(f / fz2, 2)) / (Math.sqrt(1 + Math.pow(f / fp1, 2)) * Math.sqrt(1 + Math.pow(f / fp2, 2)));
+                        magDB = 20 * Math.log10(mag); phaseDeg = -90 + Math.atan(f/fz1)*(180/Math.PI) + Math.atan(f/fz2)*(180/Math.PI) - Math.atan(f/fp1)*(180/Math.PI) - Math.atan(f/fp2)*(180/Math.PI);
+                    }
+                } else {
+                    const L = pPlant.L * 1e-6, C = pPlant.C * 1e-6, Resr = pPlant.ESR * 1e-3, R = pPlant.Rload;
+                    const { D, Dprime, Gvd0 } = plantData;
+                    let coef_D1 = 0, coef_D2 = 0, coef_N_rhp = 0;
+                    if (currentSubType === 'buck') { coef_D1 = (L / R) + (Resr * C); coef_D2 = L * C; coef_N_rhp = 0; } 
+                    else if (currentSubType === 'boost') { coef_D1 = (L / (R * Math.pow(Dprime, 2))) + (Resr * C); coef_D2 = (L * C) / Math.pow(Dprime, 2); coef_N_rhp = L / (R * Math.pow(Dprime, 2)); } 
+                    else if (currentSubType === 'buckboost') { coef_D1 = (L / (R * Math.pow(Dprime, 2))) + (Resr * C); coef_D2 = (L * C) / Math.pow(Dprime, 2); coef_N_rhp = (D * L) / (R * Math.pow(Dprime, 2)); }
+                    
+                    const w = 2 * Math.PI * f;
+                    const mag_N = Gvd0 * Math.sqrt(1 + Math.pow(w * Resr * C, 2)) * Math.sqrt(1 + Math.pow(w * coef_N_rhp, 2));
+                    const phase_N = Math.atan2(w * Resr * C, 1) + Math.atan2(-w * coef_N_rhp, 1);
+                    const real_D = 1 - Math.pow(w, 2) * coef_D2; const imag_D = w * coef_D1;
+                    const mag_D = Math.sqrt(Math.pow(real_D, 2) + Math.pow(imag_D, 2)); const phase_D = Math.atan2(imag_D, real_D);
+
+                    magDB = 20 * Math.log10(mag_N / mag_D); phaseDeg = (phase_N - phase_D) * (180 / Math.PI);
+                }
+                return { mag: magDB, phase: phaseDeg };
+            }
+
+            // --- Chart Data & Plugin ---
             const freqs = [];
             for (let i = 1; i <= 7; i++) { for (let j = 1; j < 10; j++) freqs.push(j * Math.pow(10, i)); }
             freqs.push(1e8);
 
-            function getPlotData() {
-                const magData = []; const phaseData = [];
-                
+            function generatePlotData() {
+                const magData = [], phaseData = [];
+                const zerosMagData = [], zerosPhaseData = [], polesMagData = [], polesPhaseData = [];
+
+                for (let f of freqs) {
+                    const res = getMagPhase(f);
+                    magData.push({ x: f, y: res.mag }); phaseData.push({ x: f, y: res.phase });
+                }
+
+                const pushPoint = (f, label, isZero) => {
+                    if (f > 0 && isFinite(f)) {
+                        const res = getMagPhase(f);
+                        const objM = { x: f, y: res.mag, textLabel: label }, objP = { x: f, y: res.phase, textLabel: label };
+                        if (isZero) { zerosMagData.push(objM); zerosPhaseData.push(objP); } 
+                        else { polesMagData.push(objM); polesPhaseData.push(objP); }
+                    }
+                };
+
                 if (currentMode === 'comp') {
                     const { fp0, fz1, fz2, fp1, fp2 } = compData;
-                    for (let f of freqs) {
-                        let totalMagDB = 0; let totalPhase = -90;
-                        if (currentSubType === '1') {
-                            totalMagDB = 20 * Math.log10(fp0 / f);
-                        } else if (currentSubType === '2') {
-                            const mag = (fp0 / f) * Math.sqrt(1 + Math.pow(f / fz1, 2)) / Math.sqrt(1 + Math.pow(f / fp1, 2));
-                            totalMagDB = 20 * Math.log10(mag);
-                            totalPhase = -90 + Math.atan(f / fz1)*(180/Math.PI) - Math.atan(f / fp1)*(180/Math.PI);
-                        } else if (currentSubType === '3') {
-                            const mag = (fp0 / f) * Math.sqrt(1 + Math.pow(f / fz1, 2)) * Math.sqrt(1 + Math.pow(f / fz2, 2)) / (Math.sqrt(1 + Math.pow(f / fp1, 2)) * Math.sqrt(1 + Math.pow(f / fp2, 2)));
-                            totalMagDB = 20 * Math.log10(mag);
-                            totalPhase = -90 + Math.atan(f/fz1)*(180/Math.PI) + Math.atan(f/fz2)*(180/Math.PI) - Math.atan(f/fp1)*(180/Math.PI) - Math.atan(f/fp2)*(180/Math.PI);
-                        }
-                        magData.push({ x: f, y: totalMagDB }); phaseData.push({ x: f, y: totalPhase });
+                    pushPoint(fp0, 'fp0', false);
+                    if (currentSubType === '2') { pushPoint(fz1, 'fz1', true); pushPoint(fp1, 'fp1', false); } 
+                    else if (currentSubType === '3') {
+                        pushPoint(fz1, 'fz1', true); pushPoint(fz2, 'fz2', true);
+                        pushPoint(fp1, 'fp1', false); pushPoint(fp2, 'fp2', false);
                     }
                 } else {
-                    // Plant Plot using exact transfer function coefficients
-                    const L = pPlant.L * 1e-6; const C = pPlant.C * 1e-6;
-                    const Resr = pPlant.ESR * 1e-3; const R = pPlant.Rload;
-                    const { D, Dprime, Gvd0 } = plantData;
-
-                    let coef_D1 = 0, coef_D2 = 0, coef_N_rhp = 0;
-
-                    if (currentSubType === 'buck') {
-                        coef_D1 = (L / R) + (Resr * C);
-                        coef_D2 = L * C;
-                        coef_N_rhp = 0; // No RHPZ
-                    } else if (currentSubType === 'boost') {
-                        coef_D1 = (L / (R * Math.pow(Dprime, 2))) + (Resr * C);
-                        coef_D2 = (L * C) / Math.pow(Dprime, 2);
-                        coef_N_rhp = L / (R * Math.pow(Dprime, 2));
-                    } else if (currentSubType === 'buckboost') {
-                        coef_D1 = (L / (R * Math.pow(Dprime, 2))) + (Resr * C);
-                        coef_D2 = (L * C) / Math.pow(Dprime, 2);
-                        coef_N_rhp = (D * L) / (R * Math.pow(Dprime, 2));
-                    }
-
-                    for (let f of freqs) {
-                        const w = 2 * Math.PI * f;
-                        // N(jw) = Gvd0 * (1 + j w Resr C) * (1 - j w coef_N_rhp)
-                        const mag_N = Gvd0 * Math.sqrt(1 + Math.pow(w * Resr * C, 2)) * Math.sqrt(1 + Math.pow(w * coef_N_rhp, 2));
-                        const phase_N = Math.atan2(w * Resr * C, 1) + Math.atan2(-w * coef_N_rhp, 1);
-
-                        // D(jw) = (1 - w^2 coef_D2) + j(w coef_D1)
-                        const real_D = 1 - Math.pow(w, 2) * coef_D2;
-                        const imag_D = w * coef_D1;
-                        const mag_D = Math.sqrt(Math.pow(real_D, 2) + Math.pow(imag_D, 2));
-                        const phase_D = Math.atan2(imag_D, real_D);
-
-                        magData.push({ x: f, y: 20 * Math.log10(mag_N / mag_D) });
-                        phaseData.push({ x: f, y: (phase_N - phase_D) * (180 / Math.PI) });
-                    }
+                    const { f0, fesr, frhp } = plantData;
+                    pushPoint(f0, 'f0', false); pushPoint(fesr, 'fesr', true);
+                    if (currentSubType !== 'buck') pushPoint(frhp, 'frhp', true);
                 }
-                return { magData, phaseData };
+                return { magData, phaseData, zerosMagData, zerosPhaseData, polesMagData, polesPhaseData };
             }
 
-            // --- Chart Init ---
-            const chartOpts = {
-                responsive: true, maintainAspectRatio: false, animation: { duration: 0 }, interaction: { mode: 'index', intersect: false },
-                plugins: { legend: { display: false } },
-                scales: { x: { type: 'logarithmic', grid: { color: '#f1f5f9' } } }
+            const dropLinePlugin = {
+                id: 'dropLinePlugin',
+                afterDraw: (chart) => {
+                    const ctx = chart.ctx, xAxis = chart.scales.x, yAxis = chart.scales.y;
+                    const drawLines = (idx, lineC, textC) => {
+                        const meta = chart.getDatasetMeta(idx); if (meta.hidden) return;
+                        chart.data.datasets[idx].data.forEach((pt, i) => {
+                            const model = meta.data[i]; if (!model) return;
+                            const x = model.x, y = model.y;
+                            if (x >= xAxis.left && x <= xAxis.right && y >= yAxis.top && y <= yAxis.bottom) {
+                                ctx.save(); ctx.lineWidth = 1; ctx.setLineDash([4, 4]); ctx.strokeStyle = lineC;
+                                ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x, yAxis.bottom); ctx.stroke();
+                                if (pt.textLabel) {
+                                    ctx.setLineDash([]); ctx.fillStyle = textC; ctx.font = 'bold 12px sans-serif';
+                                    ctx.textAlign = 'left'; ctx.textBaseline = 'bottom'; ctx.fillText(pt.textLabel, x + 8, y - 6);
+                                }
+                                ctx.restore();
+                            }
+                        });
+                    };
+                    drawLines(1, 'rgba(16, 185, 129, 0.6)', '#059669'); // Zeros
+                    drawLines(2, 'rgba(239, 68, 68, 0.6)', '#dc2626');  // Poles
+                }
+            };
+            Chart.register(dropLinePlugin);
+
+            const commonOpts = {
+                responsive: true, maintainAspectRatio: false, animation: { duration: 150 }, interaction: { mode: 'index', intersect: false },
+                plugins: { 
+                    legend: { display: true, labels: { filter: (i) => i.text === '零點 (Zero)' || i.text === '極點 (Pole)', usePointStyle: true, boxWidth: 8 } },
+                    tooltip: { 
+                        callbacks: { 
+                            title: (c) => 'Freq: ' + formatFreq(c[0].parsed.x) + 'Hz',
+                            label: (c) => { 
+                                const val = c.parsed.y.toFixed(2), unit = c.chart.canvas.id === 'magChart' ? 'dB' : '°';
+                                if (c.datasetIndex === 1 || c.datasetIndex === 2) return `${c.raw.textLabel || 'Point'} (${c.dataset.label.split(' ')[0]}): ${val} ${unit}`;
+                                return `${c.dataset.label}: ${val} ${unit}`;
+                            }
+                        } 
+                    }
+                },
+                scales: { 
+                    x: { 
+                        type: 'logarithmic', title: { display: true, text: 'Frequency (Hz)', color: '#64748b' }, grid: { color: '#f1f5f9' }, 
+                        ticks: { color: '#94a3b8', maxTicksLimit: 8, callback: (v) => v >= 1e9 ? v/1e9+'G' : v >= 1e6 ? v/1e6+'M' : v >= 1e3 ? v/1e3+'k' : v } 
+                    } 
+                }
             };
 
-            const magChart = new Chart(document.getElementById('magChart'), {
-                type: 'line', data: { datasets: [{ data: [], borderColor: '#0ea5e9', borderWidth: 2, pointRadius: 0 }] },
-                options: { ...chartOpts, plugins: { title: { display: true, text: 'Gain Magnitude (dB)' } }, scales: { x: chartOpts.scales.x, y: { title: {display:true, text:'dB'} } } }
-            });
+            const getDatasets = (label, color, bg) => [
+                { label: label, data: [], borderColor: color, backgroundColor: bg, borderWidth: 2, pointRadius: 0, pointHoverRadius: 4, fill: true, tension: 0.1 },
+                { label: '零點 (Zero)', data: [], type: 'scatter', pointStyle: 'circle', pointRadius: 6, pointHoverRadius: 8, backgroundColor: 'transparent', borderColor: '#10b981', borderWidth: 2 },
+                { label: '極點 (Pole)', data: [], type: 'scatter', pointStyle: 'crossRot', pointRadius: 6, pointHoverRadius: 8, backgroundColor: 'transparent', borderColor: '#ef4444', borderWidth: 2 }
+            ];
 
-            const phaseChart = new Chart(document.getElementById('phaseChart'), {
-                type: 'line', data: { datasets: [{ data: [], borderColor: '#f59e0b', borderWidth: 2, pointRadius: 0 }] },
-                options: { ...chartOpts, plugins: { title: { display: true, text: 'Phase (Degrees)' } }, scales: { x: chartOpts.scales.x, y: { title: {display:true, text:'°'}, ticks:{stepSize:45} } } }
-            });
+            const magChart = new Chart(document.getElementById('magChart').getContext('2d'), { type: 'line', data: { datasets: getDatasets('Magnitude (dB)', '#0ea5e9', 'rgba(14, 165, 233, 0.1)') }, options: { ...commonOpts, plugins: { ...commonOpts.plugins, title: { display: true, text: 'Gain Magnitude (dB)', align: 'start' } }, scales: { x: commonOpts.scales.x, y: { title: {display:true, text:'Gain (dB)'}, min: -40, max: 80 } } } });
+            const phaseChart = new Chart(document.getElementById('phaseChart').getContext('2d'), { type: 'line', data: { datasets: getDatasets('Phase (Deg)', '#f59e0b', 'rgba(245, 158, 11, 0.1)') }, options: { ...commonOpts, plugins: { ...commonOpts.plugins, title: { display: true, text: 'Phase (Degrees)', align: 'start' } }, scales: { x: commonOpts.scales.x, y: { title: {display:true, text:'Phase (°)'}, ticks:{stepSize:45}, min: -180, max: 90 } } } });
 
-            // --- UI Builders ---
+            // --- App Controller ---
             function buildUI() {
-                // Color Themes
                 if (currentMode === 'comp') {
-                    UI.logoText.classList.replace('text-plant-600', 'text-brand-600');
-                    UI.sec1Title.classList.replace('border-plant-500', 'border-brand-500');
-                    UI.sec2Title.classList.replace('border-plant-500', 'border-brand-500');
+                    UI.logoText.classList.replace('text-plant-600', 'text-brand-600'); UI.sec1Title.classList.replace('border-plant-500', 'border-brand-500'); UI.sec2Title.classList.replace('border-plant-500', 'border-brand-500');
                     UI.mathBlockComp.classList.remove('hidden'); UI.mathBlockPlant.classList.add('hidden');
+                    UI.deriv1.classList.add('hidden'); UI.deriv2.classList.add('hidden'); UI.deriv3.classList.add('hidden');
+                    if(currentSubType==='1') UI.deriv1.classList.remove('hidden'); else if(currentSubType==='2') UI.deriv2.classList.remove('hidden'); else UI.deriv3.classList.remove('hidden');
                 } else {
-                    UI.logoText.classList.replace('text-brand-600', 'text-plant-600');
-                    UI.sec1Title.classList.replace('border-brand-500', 'border-plant-500');
-                    UI.sec2Title.classList.replace('border-brand-500', 'border-plant-500');
+                    UI.logoText.classList.replace('text-brand-600', 'text-plant-600'); UI.sec1Title.classList.replace('border-brand-500', 'border-plant-500'); UI.sec2Title.classList.replace('border-brand-500', 'border-plant-500');
                     UI.mathBlockComp.classList.add('hidden'); UI.mathBlockPlant.classList.remove('hidden');
                 }
 
-                // Text Content
                 const content = {
                     comp_1: { title: "Type 1 補償器 (積分器)", desc: "僅包含一個原點極點，提供極高的直流增益以消除穩態誤差。相位會恆定延遲 90 度，且增益以 -20dB/dec 下降。" },
                     comp_2: { title: "Type 2 補償器", desc: "包含 1個原點極點、1個零點 與 1個高頻極點。最大能提供 90 度的相位提升。最常用於電流模式控制的 DC-DC 轉換器。" },
                     comp_3: { title: "Type 3 補償器", desc: "具有 2個零點 和 3個極點，能提供高達 180 度的相位提升，專門用於補償具有 LC 雙極點特性的電壓模式控制轉換器。" },
                     plant_buck: { title: "Buck Converter (降壓轉換器)", desc: "輸出電壓低於輸入電壓。其控制到輸出轉移函數具有經典的 LC 雙極點與由輸出電容帶來的 ESR 零點，相位最多落後 180 度。" },
                     plant_boost: { title: "Boost Converter (升壓轉換器)", desc: "輸出電壓高於輸入電壓。除了 LC 雙極點與 ESR 零點外，由於右半平面零點 (RHPZ) 的存在，會造成額外的 90 度相位延遲，增加了控制迴路設計的難度。" },
-                    plant_buckboost: { title: "Buck-Boost Converter (降升壓轉換器)", desc: "可升可降 (輸出極性反轉，此處取絕對值分析)。與 Boost 類似，具有隨責任週期 (Duty) 與負載變化的右半平面零點 (RHPZ)。" }
+                    plant_buckboost: { title: "Buck-Boost Converter (降升壓轉換器)", desc: "可升降壓且輸出極性反轉(此處取絕對值分析)。與 Boost 類似，具有隨責任週期 (Duty) 與負載變化的右半平面零點 (RHPZ)。" }
                 };
-                let sel = `${currentMode}_${currentSubType}`;
-                UI.introText.innerHTML = `<strong class="${currentMode==='comp'?'text-brand-700':'text-plant-700'} text-base">${content[sel].title}：</strong><br>${content[sel].desc}`;
+                UI.introText.innerHTML = `<strong class="${currentMode==='comp'?'text-brand-700':'text-plant-700'} text-base">${content[`${currentMode}_${currentSubType}`].title}：</strong><br>${content[`${currentMode}_${currentSubType}`].desc}`;
 
-                // MathJax Content update
                 if (currentMode === 'comp') {
                     if (currentSubType === '1') {
                         UI.compFormulaDisplay.innerHTML = '$$H(s) = \\frac{1}{s R_1 C_1} = \\frac{\\omega_{p0}}{s}$$';
-                        UI.compPoleZeroGrid.innerHTML = `<div class="bg-white/60 p-3 rounded border border-brand-100 shadow-sm text-center col-span-2"><span class="font-bold block mb-1">原點極點 (fp0)</span>\\( f_{p0} = \\frac{1}{2\\pi R_1 C_1} \\)</div>`;
+                        UI.compPoleZeroGrid.innerHTML = `<div class="bg-white/60 p-3 rounded border border-brand-100 shadow-sm text-center col-span-2"><span class="font-bold block mb-1 text-brand-700">原點極點 (fp0)</span>\\( f_{p0} = \\frac{1}{2\\pi R_1 C_1} \\)</div>`;
                     } else if (currentSubType === '2') {
                         UI.compFormulaDisplay.innerHTML = '$$H(s) = \\frac{\\omega_{p0}}{s} \\cdot \\frac{1 + \\frac{s}{\\omega_{z1}}}{1 + \\frac{s}{\\omega_{p1}}}$$';
-                        UI.compPoleZeroGrid.innerHTML = `<div class="bg-white/60 p-3 rounded border border-brand-100 shadow-sm text-center col-span-2"><span class="font-bold block mb-1">原點極點 (fp0)</span>\\( f_{p0} = \\frac{1}{2\\pi R_1 (C_2 + C_3)} \\)</div><div class="bg-white/60 p-3 rounded border border-brand-100 shadow-sm text-center"><span class="font-bold block mb-1">零點 (fz1)</span>\\( f_{z1} = \\frac{1}{2\\pi R_2 C_2} \\)</div><div class="bg-white/60 p-3 rounded border border-brand-100 shadow-sm text-center"><span class="font-bold block mb-1">極點 (fp1)</span>\\( f_{p1} \\approx \\frac{1}{2\\pi R_2 C_3} \\)</div>`;
+                        UI.compPoleZeroGrid.innerHTML = `<div class="bg-white/60 p-3 rounded border border-brand-100 shadow-sm text-center col-span-2"><span class="font-bold block mb-1 text-brand-700">原點極點 (fp0)</span>\\( f_{p0} = \\frac{1}{2\\pi R_1 (C_2 + C_3)} \\)</div><div class="bg-white/60 p-3 rounded border border-brand-100 shadow-sm text-center"><span class="font-bold block mb-1 text-brand-700">零點 (fz1)</span>\\( f_{z1} = \\frac{1}{2\\pi R_2 C_2} \\)</div><div class="bg-white/60 p-3 rounded border border-brand-100 shadow-sm text-center"><span class="font-bold block mb-1 text-brand-700">極點 (fp1)</span>\\( f_{p1} \\approx \\frac{1}{2\\pi R_2 C_3} \\)</div>`;
                     } else {
                         UI.compFormulaDisplay.innerHTML = '$$H(s) = \\frac{\\omega_{p0}}{s} \\cdot \\frac{(1 + \\frac{s}{\\omega_{z1}})(1 + \\frac{s}{\\omega_{z2}})}{(1 + \\frac{s}{\\omega_{p1}})(1 + \\frac{s}{\\omega_{p2}})}$$';
-                        UI.compPoleZeroGrid.innerHTML = `<div class="bg-white/60 p-3 rounded border border-brand-100 shadow-sm text-center"><span class="font-bold block mb-1">原點極點 (fp0)</span>\\( f_{p0} = \\frac{1}{2\\pi R_1 (C_2 + C_3)} \\)</div><div class="bg-white/60 p-3 rounded border border-brand-100 shadow-sm text-center"><span class="font-bold block mb-1">第一零點 (fz1)</span>\\( f_{z1} = \\frac{1}{2\\pi R_2 C_2} \\)</div><div class="bg-white/60 p-3 rounded border border-brand-100 shadow-sm text-center"><span class="font-bold block mb-1">第二零點 (fz2)</span>\\( f_{z2} = \\frac{1}{2\\pi (R_1 + R_3) C_1} \\)</div><div class="bg-white/60 p-3 rounded border border-brand-100 shadow-sm text-center"><span class="font-bold block mb-1">第一極點 (fp1)</span>\\( f_{p1} = \\frac{1}{2\\pi R_3 C_1} \\)</div><div class="bg-white/60 p-3 rounded border border-brand-100 shadow-sm text-center col-span-2"><span class="font-bold block mb-1">第二極點 (fp2)</span>\\( f_{p2} \\approx \\frac{1}{2\\pi R_2 C_3} \\)</div>`;
+                        UI.compPoleZeroGrid.innerHTML = `<div class="bg-white/60 p-3 rounded border border-brand-100 shadow-sm text-center"><span class="font-bold block mb-1 text-brand-700">原點極點 (fp0)</span>\\( f_{p0} = \\frac{1}{2\\pi R_1 (C_2 + C_3)} \\)</div><div class="bg-white/60 p-3 rounded border border-brand-100 shadow-sm text-center"><span class="font-bold block mb-1 text-brand-700">第一零點 (fz1)</span>\\( f_{z1} = \\frac{1}{2\\pi R_2 C_2} \\)</div><div class="bg-white/60 p-3 rounded border border-brand-100 shadow-sm text-center"><span class="font-bold block mb-1 text-brand-700">第二零點 (fz2)</span>\\( f_{z2} = \\frac{1}{2\\pi (R_1 + R_3) C_1} \\)</div><div class="bg-white/60 p-3 rounded border border-brand-100 shadow-sm text-center"><span class="font-bold block mb-1 text-brand-700">第一極點 (fp1)</span>\\( f_{p1} = \\frac{1}{2\\pi R_3 C_1} \\)</div><div class="bg-white/60 p-3 rounded border border-brand-100 shadow-sm text-center col-span-2"><span class="font-bold block mb-1 text-brand-700">第二極點 (fp2)</span>\\( f_{p2} \\approx \\frac{1}{2\\pi R_2 C_3} \\)</div>`;
                     }
                 } else {
                     if (currentSubType === 'buck') {
                         UI.plantFormulaDisplay.innerHTML = '$$G_{vd}(s) = V_{in} \\frac{1 + \\frac{s}{\\omega_{esr}}}{1 + s(\\frac{L}{R} + R_{esr}C) + s^2 LC}$$';
-                        UI.plantMathRHPZBox.classList.add('hidden');
-                        UI.plantMathGain.innerHTML = '\\( V_{in} \\)';
-                        UI.plantMathF0.innerHTML = '\\( \\frac{1}{2\\pi\\sqrt{LC}} \\)';
+                        UI.plantMathRHPZBox.classList.add('hidden'); UI.plantMathGain.innerHTML = '\\( V_{in} \\)'; UI.plantMathF0.innerHTML = '\\( \\frac{1}{2\\pi\\sqrt{LC}} \\)';
                     } else if (currentSubType === 'boost') {
                         UI.plantFormulaDisplay.innerHTML = '$$G_{vd}(s) = \\frac{V_{in}}{(1-D)^2} \\frac{(1 + \\frac{s}{\\omega_{esr}})(1 - \\frac{s}{\\omega_{rhp}})}{1 + s(\\frac{L}{(1-D)^2 R} + R_{esr}C) + s^2 \\frac{LC}{(1-D)^2}}$$';
-                        UI.plantMathRHPZBox.classList.remove('hidden');
-                        UI.plantMathGain.innerHTML = '\\( \\frac{V_{in}}{(1-D)^2} \\)';
-                        UI.plantMathF0.innerHTML = '\\( \\frac{1-D}{2\\pi\\sqrt{LC}} \\)';
-                        UI.plantMathRHPZ.innerHTML = '\\( \\frac{R (1-D)^2}{2\\pi L} \\)';
+                        UI.plantMathRHPZBox.classList.remove('hidden'); UI.plantMathGain.innerHTML = '\\( \\frac{V_{in}}{(1-D)^2} \\)'; UI.plantMathF0.innerHTML = '\\( \\frac{1-D}{2\\pi\\sqrt{LC}} \\)'; UI.plantMathRHPZ.innerHTML = '\\( \\frac{R (1-D)^2}{2\\pi L} \\)';
                     } else {
                         UI.plantFormulaDisplay.innerHTML = '$$G_{vd}(s) = \\frac{V_{in}}{(1-D)^2} \\frac{(1 + \\frac{s}{\\omega_{esr}})(1 - \\frac{s}{\\omega_{rhp}})}{... (分母同 Boost)}$$';
-                        UI.plantMathRHPZBox.classList.remove('hidden');
-                        UI.plantMathGain.innerHTML = '\\( \\frac{V_{in}}{(1-D)^2} \\)';
-                        UI.plantMathF0.innerHTML = '\\( \\frac{1-D}{2\\pi\\sqrt{LC}} \\)';
-                        UI.plantMathRHPZ.innerHTML = '\\( \\frac{R (1-D)^2}{2\\pi D L} \\)';
+                        UI.plantMathRHPZBox.classList.remove('hidden'); UI.plantMathGain.innerHTML = '\\( \\frac{V_{in}}{(1-D)^2} \\)'; UI.plantMathF0.innerHTML = '\\( \\frac{1-D}{2\\pi\\sqrt{LC}} \\)'; UI.plantMathRHPZ.innerHTML = '\\( \\frac{R (1-D)^2}{2\\pi D L} \\)';
                     }
                 }
                 if (window.MathJax) MathJax.typesetPromise();
 
-                // Sliders builder
-                let slidersHTML = '';
                 const buildSlider = (id, label, min, max, step, val, unit, color) => `
-                    <div>
-                        <div class="flex justify-between items-center mb-1">
-                            <label class="text-xs font-semibold text-neutral-300">${label}</label>
-                            <span class="text-xs text-${color}-400 font-mono"><span id="val_${id}">${val}</span> ${unit}</span>
-                        </div>
-                        <input type="range" id="slider_${id}" data-key="${id}" min="${min}" max="${max}" step="${step}" value="${val}" class="slider-${color}">
-                    </div>`;
-
+                    <div><div class="flex justify-between items-center mb-1"><label class="text-xs font-semibold text-neutral-300">${label}</label><span class="text-xs text-${color}-400 font-mono"><span id="val_${id}">${val}</span> ${unit}</span></div><input type="range" id="slider_${id}" data-key="${id}" min="${min}" max="${max}" step="${step}" value="${val}" class="slider-${color}"></div>`;
+                
+                let sH = '';
                 if (currentMode === 'comp') {
-                    slidersHTML += buildSlider('R1', 'R1 (輸入/上分壓)', 1, 100, 1, pComp.R1, 'kΩ', 'brand');
-                    if(currentSubType==='1') slidersHTML += buildSlider('C1', 'C1 (積分電容)', 0.1, 100, 0.1, pComp.C1, 'nF', 'brand');
+                    sH += buildSlider('R1', 'R1 (輸入/上分壓)', 1, 100, 1, pComp.R1, 'kΩ', 'brand');
+                    if(currentSubType==='1') sH += buildSlider('C1', 'C1 (積分電容)', 0.1, 100, 0.1, pComp.C1, 'nF', 'brand');
                     if(currentSubType==='2' || currentSubType==='3') {
-                        if(currentSubType==='3') slidersHTML += buildSlider('C1', 'C1 (輸入電容)', 0.1, 100, 0.1, pComp.C1, 'nF', 'brand');
-                        slidersHTML += buildSlider('R2', 'R2 (回授主增益)', 1, 200, 1, pComp.R2, 'kΩ', 'brand');
-                        slidersHTML += buildSlider('C2', 'C2 (回授零點)', 0.1, 50, 0.1, pComp.C2, 'nF', 'brand');
-                        if(currentSubType==='3') slidersHTML += buildSlider('R3', 'R3 (輸入高頻)', 0.1, 20, 0.1, pComp.R3, 'kΩ', 'brand');
-                        slidersHTML += buildSlider('C3', 'C3 (高頻極點)', 10, 1000, 10, pComp.C3, 'pF', 'brand');
+                        if(currentSubType==='3') sH += buildSlider('C1', 'C1 (輸入電容)', 0.1, 100, 0.1, pComp.C1, 'nF', 'brand');
+                        sH += buildSlider('R2', 'R2 (回授主增益)', 1, 200, 1, pComp.R2, 'kΩ', 'brand'); sH += buildSlider('C2', 'C2 (回授零點)', 0.1, 50, 0.1, pComp.C2, 'nF', 'brand');
+                        if(currentSubType==='3') sH += buildSlider('R3', 'R3 (輸入高頻)', 0.1, 20, 0.1, pComp.R3, 'kΩ', 'brand');
+                        sH += buildSlider('C3', 'C3 (高頻極點)', 10, 1000, 10, pComp.C3, 'pF', 'brand');
                     }
                 } else {
-                    slidersHTML += buildSlider('Vin', 'Vin (輸入電壓)', 5, 48, 1, pPlant.Vin, 'V', 'plant');
-                    slidersHTML += buildSlider('Vout', 'Vout (輸出電壓)', 1, 48, 1, pPlant.Vout, 'V', 'plant');
-                    slidersHTML += buildSlider('L', 'L (主電感)', 1, 100, 1, pPlant.L, 'μH', 'plant');
-                    slidersHTML += buildSlider('C', 'Cout (輸出電容)', 10, 2000, 10, pPlant.C, 'μF', 'plant');
-                    slidersHTML += buildSlider('ESR', 'ESR (電容等效電阻)', 1, 100, 1, pPlant.ESR, 'mΩ', 'plant');
-                    slidersHTML += buildSlider('Rload', 'R_load (負載電阻)', 1, 50, 0.5, pPlant.Rload, 'Ω', 'plant');
+                    sH += buildSlider('Vin', 'Vin (輸入電壓)', 5, 48, 1, pPlant.Vin, 'V', 'plant'); sH += buildSlider('Vout', 'Vout (輸出電壓)', 1, 48, 1, pPlant.Vout, 'V', 'plant');
+                    sH += buildSlider('L', 'L (主電感)', 1, 100, 1, pPlant.L, 'μH', 'plant'); sH += buildSlider('C', 'Cout (輸出電容)', 10, 2000, 10, pPlant.C, 'μF', 'plant');
+                    sH += buildSlider('ESR', 'ESR (電容等效電阻)', 1, 100, 1, pPlant.ESR, 'mΩ', 'plant'); sH += buildSlider('Rload', 'R_load (負載電阻)', 1, 50, 0.5, pPlant.Rload, 'Ω', 'plant');
                 }
-                UI.slidersContainer.innerHTML = slidersHTML;
+                UI.slidersContainer.innerHTML = sH;
 
-                // Readouts builder
-                let readoutsHTML = '';
+                let rH = '';
                 if (currentMode === 'comp') {
-                    const rBoxes = [
-                        {id:'fp0', label:'原點極點 fp0'}, {id:'fz1', label:'零點 1 fz1', hide:currentSubType==='1'},
-                        {id:'fz2', label:'零點 2 fz2', hide:currentSubType!=='3'}, {id:'fp1', label:'極點 1 fp1', hide:currentSubType==='1'},
-                        {id:'fp2', label:'極點 2 fp2', hide:currentSubType!=='3'}
-                    ];
-                    rBoxes.forEach(b => {
-                        if(!b.hide) readoutsHTML += `<div class="bg-neutral-800 p-2"><span class="block text-neutral-400 mb-1">${b.label}</span><span id="out_${b.id}" class="font-bold text-white">--</span></div>`;
-                    });
+                    [{id:'fp0', l:'原點極點 fp0'}, {id:'fz1', l:'零點 1 fz1', h:currentSubType==='1', c:'emerald'}, {id:'fz2', l:'零點 2 fz2', h:currentSubType!=='3', c:'emerald'}, {id:'fp1', l:'極點 1 fp1', h:currentSubType==='1', c:'red'}, {id:'fp2', l:'極點 2 fp2', h:currentSubType!=='3', c:'red'}]
+                    .forEach(b => { if(!b.h) rH += `<div class="bg-neutral-800 p-2"><span class="block text-neutral-400 mb-1">${b.l}</span><span id="out_${b.id}" class="font-bold text-${b.c||'white'}-400">--</span></div>`; });
                 } else {
-                    readoutsHTML += `<div class="bg-neutral-800 p-2"><span class="block text-neutral-400 mb-1">Duty (D)</span><span id="out_D" class="font-bold text-plant-400">--</span></div>`;
-                    readoutsHTML += `<div class="bg-neutral-800 p-2"><span class="block text-neutral-400 mb-1">DC Gain</span><span id="out_Gvd0" class="font-bold text-white">--</span></div>`;
-                    readoutsHTML += `<div class="bg-neutral-800 p-2"><span class="block text-neutral-400 mb-1">LC 雙極點 f0</span><span id="out_f0" class="font-bold text-white">--</span></div>`;
-                    readoutsHTML += `<div class="bg-neutral-800 p-2"><span class="block text-neutral-400 mb-1">ESR 零點</span><span id="out_fesr" class="font-bold text-white">--</span></div>`;
-                    if(currentSubType !== 'buck') readoutsHTML += `<div class="bg-neutral-800 p-2"><span class="block text-red-400/80 mb-1">RHPZ 零點</span><span id="out_frhp" class="font-bold text-red-400">--</span></div>`;
+                    rH += `<div class="bg-neutral-800 p-2"><span class="block text-neutral-400 mb-1">Duty (D)</span><span id="out_D" class="font-bold text-plant-400">--</span></div>`;
+                    rH += `<div class="bg-neutral-800 p-2"><span class="block text-neutral-400 mb-1">LC 極點 f0</span><span id="out_f0" class="font-bold text-red-400">--</span></div>`;
+                    rH += `<div class="bg-neutral-800 p-2"><span class="block text-neutral-400 mb-1">ESR 零點</span><span id="out_fesr" class="font-bold text-emerald-400">--</span></div>`;
+                    if(currentSubType !== 'buck') rH += `<div class="bg-neutral-800 p-2"><span class="block text-red-400/80 mb-1">RHPZ 零點</span><span id="out_frhp" class="font-bold text-emerald-400">--</span></div>`;
                 }
-                UI.readoutContainer.innerHTML = readoutsHTML;
+                UI.readoutContainer.innerHTML = rH;
 
-                // Bind Slider Events
-                UI.slidersContainer.querySelectorAll('input[type=range]').forEach(slider => {
-                    const key = slider.getAttribute('data-key');
-                    slider.addEventListener('input', (e) => {
-                        const val = parseFloat(e.target.value);
-                        document.getElementById(`val_${key}`).textContent = val;
-                        if (currentMode === 'comp') pComp[key] = val; else pPlant[key] = val;
-                        updateData(); drawCanvas(key);
+                UI.slidersContainer.querySelectorAll('input[type=range]').forEach(s => {
+                    const k = s.getAttribute('data-key');
+                    s.addEventListener('input', (e) => {
+                        const v = parseFloat(e.target.value); document.getElementById(`val_${k}`).textContent = v;
+                        if (currentMode === 'comp') pComp[k] = v; else pPlant[k] = v;
+                        updateData(); drawCanvas(k);
                     });
-                    slider.addEventListener('mouseenter', () => drawCanvas(key));
-                    slider.addEventListener('mouseleave', () => drawCanvas(null));
+                    s.addEventListener('mouseenter', () => drawCanvas(k)); s.addEventListener('mouseleave', () => drawCanvas(null));
                 });
             }
 
@@ -490,49 +521,38 @@
                 if (currentMode === 'comp') {
                     calcComp();
                     document.getElementById('out_fp0').textContent = formatFreq(compData.fp0) + 'Hz';
-                    if(currentSubType!=='1') {
-                        document.getElementById('out_fz1').textContent = formatFreq(compData.fz1) + 'Hz';
-                        document.getElementById('out_fp1').textContent = formatFreq(compData.fp1) + 'Hz';
-                    }
-                    if(currentSubType==='3') {
-                        document.getElementById('out_fz2').textContent = formatFreq(compData.fz2) + 'Hz';
-                        document.getElementById('out_fp2').textContent = formatFreq(compData.fp2) + 'Hz';
-                    }
+                    if(currentSubType!=='1') { document.getElementById('out_fz1').textContent = formatFreq(compData.fz1) + 'Hz'; document.getElementById('out_fp1').textContent = formatFreq(compData.fp1) + 'Hz'; }
+                    if(currentSubType==='3') { document.getElementById('out_fz2').textContent = formatFreq(compData.fz2) + 'Hz'; document.getElementById('out_fp2').textContent = formatFreq(compData.fp2) + 'Hz'; }
                 } else {
                     calcPlant();
                     document.getElementById('out_D').textContent = (plantData.D * 100).toFixed(1) + ' %';
-                    document.getElementById('out_Gvd0').textContent = (20 * Math.log10(plantData.Gvd0)).toFixed(1) + ' dB';
                     document.getElementById('out_f0').textContent = formatFreq(plantData.f0) + 'Hz';
                     document.getElementById('out_fesr').textContent = formatFreq(plantData.fesr) + 'Hz';
                     if(currentSubType!=='buck') document.getElementById('out_frhp').textContent = formatFreq(plantData.frhp) + 'Hz';
                 }
 
-                const { magData, phaseData } = getPlotData();
-                const color = currentMode === 'comp' ? '#0ea5e9' : '#d946ef';
-                const bg = currentMode === 'comp' ? 'rgba(14, 165, 233, 0.1)' : 'rgba(217, 70, 239, 0.1)';
+                const plotData = generatePlotData();
+                const mC = currentMode === 'comp' ? '#0ea5e9' : '#d946ef', mB = currentMode === 'comp' ? 'rgba(14, 165, 233, 0.1)' : 'rgba(217, 70, 239, 0.1)';
                 
-                magChart.data.datasets[0].data = magData;
-                magChart.data.datasets[0].borderColor = color; magChart.data.datasets[0].backgroundColor = bg;
-                phaseChart.data.datasets[0].data = phaseData;
+                magChart.data.datasets[0].data = plotData.magData; magChart.data.datasets[0].borderColor = mC; magChart.data.datasets[0].backgroundColor = mB;
+                magChart.data.datasets[1].data = plotData.zerosMagData; magChart.data.datasets[2].data = plotData.polesMagData;
+                phaseChart.data.datasets[0].data = plotData.phaseData;
+                phaseChart.data.datasets[1].data = plotData.zerosPhaseData; phaseChart.data.datasets[2].data = plotData.polesPhaseData;
+
                 magChart.update(); phaseChart.update();
             }
 
-            // --- Canvas Drawing Logic ---
             function drawCanvas(activeComp = null) {
-                const w = UI.canvas.width; const h = UI.canvas.height;
+                const w = UI.canvas.width, h = UI.canvas.height;
                 ctxCanvas.clearRect(0, 0, w, h);
-                const baseC = '#475569'; const activeC = currentMode==='comp' ? '#0ea5e9' : '#d946ef';
+                const baseC = '#475569', activeC = currentMode==='comp' ? '#0ea5e9' : '#d946ef', bgC = '#f8fafc';
                 ctxCanvas.lineCap = 'round'; ctxCanvas.lineJoin = 'round';
 
-                const setS = (active) => {
-                    ctxCanvas.strokeStyle = active ? activeC : baseC; ctxCanvas.fillStyle = active ? activeC : baseC;
-                    ctxCanvas.lineWidth = active ? 4 : 2; ctxCanvas.font = active ? 'bold 16px monospace' : 'bold 14px monospace';
-                };
-
+                const setS = (active) => { ctxCanvas.strokeStyle = active ? activeC : baseC; ctxCanvas.fillStyle = active ? activeC : baseC; ctxCanvas.lineWidth = active ? 4 : 2; ctxCanvas.font = active ? 'bold 16px monospace' : 'bold 14px monospace'; };
                 const drawR = (x, y, l, active, v=false) => {
                     setS(active); ctxCanvas.beginPath();
-                    if(v) { ctxCanvas.rect(x-8, y-20, 16, 40); ctxCanvas.fillStyle='#f8fafc'; ctxCanvas.fill(); ctxCanvas.stroke(); setS(active); ctxCanvas.textAlign='left'; ctxCanvas.textBaseline='middle'; ctxCanvas.fillText(l, x+12, y); }
-                    else { ctxCanvas.rect(x-20, y-8, 40, 16); ctxCanvas.fillStyle='#f8fafc'; ctxCanvas.fill(); ctxCanvas.stroke(); setS(active); ctxCanvas.textAlign='center'; ctxCanvas.textBaseline='bottom'; ctxCanvas.fillText(l, x, y-12); }
+                    if(v) { ctxCanvas.rect(x-8, y-20, 16, 40); ctxCanvas.fillStyle=bgC; ctxCanvas.fill(); ctxCanvas.stroke(); setS(active); ctxCanvas.textAlign='left'; ctxCanvas.textBaseline='middle'; ctxCanvas.fillText(l, x+12, y); }
+                    else { ctxCanvas.rect(x-20, y-8, 40, 16); ctxCanvas.fillStyle=bgC; ctxCanvas.fill(); ctxCanvas.stroke(); setS(active); ctxCanvas.textAlign='center'; ctxCanvas.textBaseline='bottom'; ctxCanvas.fillText(l, x, y-12); }
                 };
                 const drawC = (x, y, l, active, v=true) => {
                     setS(active); ctxCanvas.beginPath();
@@ -546,108 +566,118 @@
                     if(!v) { for(let i=0;i<3;i++) ctxCanvas.arc(x-10+i*10, y, 5, Math.PI, 0); }
                     else { for(let i=0;i<3;i++) ctxCanvas.arc(x, y-10+i*10, 5, -Math.PI/2, Math.PI/2); }
                     ctxCanvas.stroke(); setS(active); ctxCanvas.textAlign=(v?'left':'center'); ctxCanvas.textBaseline=(v?'middle':'bottom');
-                    if(v) ctxCanvas.fillText(l, x+10, y); else ctxCanvas.fillText(l, x, y-15);
+                    if(v) ctxCanvas.fillText(l, x+12, y); else ctxCanvas.fillText(l, x, y-15);
                 };
                 const drawDiode = (x, y, dir='up') => {
                     setS(false); ctxCanvas.beginPath();
                     if(dir==='up') { ctxCanvas.moveTo(x, y-10); ctxCanvas.lineTo(x-10, y+10); ctxCanvas.lineTo(x+10, y+10); ctxCanvas.closePath(); ctxCanvas.moveTo(x-10, y-10); ctxCanvas.lineTo(x+10, y-10); }
                     else if(dir==='right') { ctxCanvas.moveTo(x+10, y); ctxCanvas.lineTo(x-10, y-10); ctxCanvas.lineTo(x-10, y+10); ctxCanvas.closePath(); ctxCanvas.moveTo(x+10, y-10); ctxCanvas.lineTo(x+10, y+10); }
+                    else if(dir==='left') { ctxCanvas.moveTo(x-10, y); ctxCanvas.lineTo(x+10, y-10); ctxCanvas.lineTo(x+10, y+10); ctxCanvas.closePath(); ctxCanvas.moveTo(x-10, y-10); ctxCanvas.lineTo(x-10, y+10); }
                     ctxCanvas.stroke();
                 };
                 const drawSw = (x, y, v=false) => {
                     setS(false); ctxCanvas.beginPath();
-                    if(v) { ctxCanvas.arc(x, y-15, 3, 0, Math.PI*2); ctxCanvas.arc(x, y+15, 3, 0, Math.PI*2); ctxCanvas.moveTo(x, y-15); ctxCanvas.lineTo(x-10, y+10); }
-                    else { ctxCanvas.arc(x-15, y, 3, 0, Math.PI*2); ctxCanvas.arc(x+15, y, 3, 0, Math.PI*2); ctxCanvas.moveTo(x-15, y); ctxCanvas.lineTo(x+10, y-10); }
+                    if(v) { ctxCanvas.arc(x, y-15, 3, 0, Math.PI*2); ctxCanvas.arc(x, y+15, 3, 0, Math.PI*2); ctxCanvas.moveTo(x, y-18); ctxCanvas.lineTo(x, y-25); ctxCanvas.moveTo(x, y+18); ctxCanvas.lineTo(x, y+25); ctxCanvas.moveTo(x, y-15); ctxCanvas.lineTo(x-12, y+10); } 
+                    else { ctxCanvas.arc(x-15, y, 3, 0, Math.PI*2); ctxCanvas.arc(x+15, y, 3, 0, Math.PI*2); ctxCanvas.moveTo(x-18, y); ctxCanvas.lineTo(x-25, y); ctxCanvas.moveTo(x+18, y); ctxCanvas.lineTo(x+25, y); ctxCanvas.moveTo(x-15, y); ctxCanvas.lineTo(x+10, y-12); }
                     ctxCanvas.stroke();
                 };
-                const drawGnd = (x, y) => {
-                    setS(false); ctxCanvas.beginPath(); ctxCanvas.moveTo(x, y); ctxCanvas.lineTo(x, y+10); ctxCanvas.moveTo(x-10, y+10); ctxCanvas.lineTo(x+10, y+10); ctxCanvas.moveTo(x-6, y+15); ctxCanvas.lineTo(x+6, y+15); ctxCanvas.stroke();
-                };
+                const drawGnd = (x, y) => { setS(false); ctxCanvas.beginPath(); ctxCanvas.moveTo(x, y); ctxCanvas.lineTo(x, y+10); ctxCanvas.moveTo(x-10, y+10); ctxCanvas.lineTo(x+10, y+10); ctxCanvas.moveTo(x-6, y+15); ctxCanvas.lineTo(x+6, y+15); ctxCanvas.stroke(); };
+                const drawNode = (x, y) => { ctxCanvas.fillStyle = baseC; ctxCanvas.beginPath(); ctxCanvas.arc(x, y, 4, 0, Math.PI * 2); ctxCanvas.fill(); };
 
                 if (currentMode === 'comp') {
-                    // Compensator drawing logic (simplified from previous iteration for space)
-                    const cy = 160; const ox = 420; const inY = cy - 15;
+                    const cy = 160, ox = 480, inY = cy - 15;
                     setS(false); ctxCanvas.beginPath(); ctxCanvas.moveTo(ox, cy - 30); ctxCanvas.lineTo(ox + 50, cy); ctxCanvas.lineTo(ox, cy + 30); ctxCanvas.closePath(); ctxCanvas.stroke();
-                    ctxCanvas.textAlign='left'; ctxCanvas.fillText('-', ox + 8, cy - 15); ctxCanvas.fillText('+', ox + 8, cy + 15);
-                    ctxCanvas.beginPath(); ctxCanvas.moveTo(ox, cy+15); ctxCanvas.lineTo(ox-20, cy+15); ctxCanvas.stroke(); ctxCanvas.textAlign='right'; ctxCanvas.fillText('V_REF', ox-25, cy+15);
-                    
-                    const vinX=40, inSplitX=90, inJoinX=280, r1Y=cy-55, r3c1Y=cy+25;
-                    setS(false); ctxCanvas.fillText('V_OUT(Plant)', vinX-5, inY);
+                    ctxCanvas.textAlign = 'left'; ctxCanvas.textBaseline = 'middle'; ctxCanvas.fillText('-', ox + 8, cy - 15); ctxCanvas.fillText('+', ox + 8, cy + 15);
+                    ctxCanvas.beginPath(); ctxCanvas.moveTo(ox, cy + 15); ctxCanvas.lineTo(ox - 20, cy + 15); ctxCanvas.stroke(); ctxCanvas.textAlign = 'right'; ctxCanvas.fillText('V_REF', ox - 25, cy + 15);
+
+                    const vinX = 60, inSplitX = 110, inJoinX = 300, r1Y = cy - 55, r3c1Y = cy + 25;
+                    setS(false); ctxCanvas.textAlign = 'right'; ctxCanvas.fillText('V_OUT(Plant)', vinX - 5, inY);
                     ctxCanvas.beginPath(); ctxCanvas.moveTo(vinX, inY); ctxCanvas.lineTo(inSplitX, inY);
-                    
+
                     if (currentSubType === '1' || currentSubType === '2') {
                         ctxCanvas.moveTo(inSplitX, inY); ctxCanvas.lineTo(inJoinX, inY); ctxCanvas.stroke();
-                        ctxCanvas.clearRect((inSplitX+inJoinX)/2-25, inY-15, 50, 30); drawR((inSplitX+inJoinX)/2, inY, 'R1', activeComp==='R1');
-                    } else {
+                        drawR((inSplitX+inJoinX)/2, inY, 'R1', activeComp === 'R1');
+                    } else if (currentSubType === '3') {
                         ctxCanvas.moveTo(inSplitX, inY); ctxCanvas.lineTo(inSplitX, r1Y); ctxCanvas.lineTo(inJoinX, r1Y); ctxCanvas.lineTo(inJoinX, inY);
                         ctxCanvas.moveTo(inSplitX, inY); ctxCanvas.lineTo(inSplitX, r3c1Y); ctxCanvas.lineTo(inJoinX, r3c1Y); ctxCanvas.lineTo(inJoinX, inY); ctxCanvas.stroke();
-                        ctxCanvas.clearRect((inSplitX+inJoinX)/2-25, r1Y-15, 50, 30); drawR((inSplitX+inJoinX)/2, r1Y, 'R1', activeComp==='R1');
-                        ctxCanvas.clearRect(inSplitX+50-25, r3c1Y-15, 50, 30); drawR(inSplitX+50, r3c1Y, 'R3', activeComp==='R3');
-                        ctxCanvas.clearRect(inJoinX-50-15, r3c1Y-15, 30, 30); drawC(inJoinX-50, r3c1Y, 'C1', activeComp==='C1', false);
-                    }
-                    
-                    const fbUpX=320;
-                    setS(false); ctxCanvas.beginPath(); ctxCanvas.moveTo(inJoinX, inY); ctxCanvas.lineTo(ox, inY); ctxCanvas.stroke();
-                    ctxCanvas.beginPath(); ctxCanvas.moveTo(fbUpX, inY); ctxCanvas.lineTo(fbUpX, cy+10); ctxCanvas.stroke(); drawR(fbUpX, cy+30, 'Rbot', false, true); drawGnd(fbUpX, cy+50);
-                    
-                    const fbJoinX=520, fbTopY=cy-120, fbBotY=cy-70;
-                    if(currentSubType==='1') {
-                        setS(false); ctxCanvas.beginPath(); ctxCanvas.moveTo(fbUpX, inY); ctxCanvas.lineTo(fbUpX, fbBotY); ctxCanvas.lineTo(fbJoinX, fbBotY); ctxCanvas.lineTo(fbJoinX, cy); ctxCanvas.stroke();
-                        ctxCanvas.clearRect((fbUpX+fbJoinX)/2-15, fbBotY-15, 30, 30); drawC((fbUpX+fbJoinX)/2, fbBotY, 'C1', activeComp==='C1', false);
-                    } else {
-                        setS(false); ctxCanvas.beginPath(); ctxCanvas.moveTo(fbUpX, inY); ctxCanvas.lineTo(fbUpX, fbTopY); ctxCanvas.moveTo(fbUpX, fbTopY); ctxCanvas.lineTo(fbJoinX, fbTopY); ctxCanvas.moveTo(fbUpX, fbBotY); ctxCanvas.lineTo(fbJoinX, fbBotY); ctxCanvas.moveTo(fbJoinX, fbTopY); ctxCanvas.lineTo(fbJoinX, cy); ctxCanvas.stroke();
-                        ctxCanvas.clearRect((fbUpX+fbJoinX)/2-15, fbTopY-15, 30, 30); drawC((fbUpX+fbJoinX)/2, fbTopY, 'C3', activeComp==='C3', false);
-                        ctxCanvas.clearRect(fbUpX+60-25, fbBotY-15, 50, 30); drawR(fbUpX+60, fbBotY, 'R2', activeComp==='R2');
-                        ctxCanvas.clearRect(fbJoinX-60-15, fbBotY-15, 30, 30); drawC(fbJoinX-60, fbBotY, 'C2', activeComp==='C2', false);
-                    }
-                    setS(false); ctxCanvas.beginPath(); ctxCanvas.moveTo(ox+50, cy); ctxCanvas.lineTo(580, cy); ctxCanvas.stroke();
-                } else {
-                    // Plant drawing logic
-                    const cy = 100; const vinX = 60; const node1X = 200; const node2X = 350; const voutX = 500;
-                    setS(false); ctxCanvas.textAlign='right'; ctxCanvas.fillText('Vin', vinX-10, cy);
-                    ctxCanvas.textAlign='left'; ctxCanvas.fillText('Vout', voutX+10, cy);
-                    
-                    if (currentSubType === 'buck') {
-                        // Buck: Vin -> Switch -> Node1 -> L -> Node2 -> Vout
-                        setS(false); ctxCanvas.beginPath(); ctxCanvas.moveTo(vinX, cy); ctxCanvas.lineTo(node1X-40, cy); ctxCanvas.moveTo(node1X+40, cy); ctxCanvas.lineTo(node2X, cy); ctxCanvas.moveTo(node2X, cy); ctxCanvas.lineTo(voutX, cy); ctxCanvas.stroke();
-                        drawSw(node1X, cy, false);
-                        ctxCanvas.clearRect(node1X+40, cy-15, 80, 30); drawL(node1X+80, cy, 'L', activeComp==='L', false);
-                        // Diode
-                        setS(false); ctxCanvas.beginPath(); ctxCanvas.moveTo(node1X, cy); ctxCanvas.lineTo(node1X, cy+30); ctxCanvas.moveTo(node1X, cy+50); ctxCanvas.lineTo(node1X, cy+100); ctxCanvas.stroke(); drawDiode(node1X, cy+40, 'up'); drawGnd(node1X, cy+100);
-                    } else if (currentSubType === 'boost') {
-                        // Boost: Vin -> L -> Node1 -> Diode -> Node2 -> Vout
-                        setS(false); ctxCanvas.beginPath(); ctxCanvas.moveTo(vinX, cy); ctxCanvas.lineTo(node1X, cy); ctxCanvas.moveTo(node1X, cy); ctxCanvas.lineTo(node2X-40, cy); ctxCanvas.moveTo(node2X+40, cy); ctxCanvas.lineTo(voutX, cy); ctxCanvas.stroke();
-                        ctxCanvas.clearRect(vinX+40, cy-15, 60, 30); drawL(vinX+70, cy, 'L', activeComp==='L', false);
-                        drawDiode(node2X, cy, 'right');
-                        // Switch
-                        setS(false); ctxCanvas.beginPath(); ctxCanvas.moveTo(node1X, cy); ctxCanvas.lineTo(node1X, cy+30); ctxCanvas.moveTo(node1X, cy+60); ctxCanvas.lineTo(node1X, cy+100); ctxCanvas.stroke(); drawSw(node1X, cy+45, true); drawGnd(node1X, cy+100);
-                    } else if (currentSubType === 'buckboost') {
-                        // Buck-Boost: Vin -> Switch -> Node1 -> Diode -> Node2 -> Vout
-                        setS(false); ctxCanvas.beginPath(); ctxCanvas.moveTo(vinX, cy); ctxCanvas.lineTo(node1X-40, cy); ctxCanvas.moveTo(node1X+40, cy); ctxCanvas.lineTo(node2X-40, cy); ctxCanvas.moveTo(node2X+40, cy); ctxCanvas.lineTo(voutX, cy); ctxCanvas.stroke();
-                        drawSw(node1X, cy, false);
-                        drawDiode(node2X, cy, 'right'); // Simplified symbol
-                        // Inductor
-                        setS(false); ctxCanvas.beginPath(); ctxCanvas.moveTo(node1X, cy); ctxCanvas.lineTo(node1X, cy+20); ctxCanvas.moveTo(node1X, cy+70); ctxCanvas.lineTo(node1X, cy+100); ctxCanvas.stroke(); drawL(node1X, cy+45, 'L', activeComp==='L', true); drawGnd(node1X, cy+100);
+                        drawNode(inSplitX, inY); drawNode(inJoinX, inY);
+                        drawR((inSplitX+inJoinX)/2, r1Y, 'R1', activeComp === 'R1');
+                        drawR(inSplitX + 50, r3c1Y, 'R3', activeComp === 'R3');
+                        ctxCanvas.clearRect(inJoinX - 50 - 6, r3c1Y - 15, 12, 30); drawC(inJoinX - 50, r3c1Y, 'C1', activeComp === 'C1', false);
                     }
 
-                    // Common Output Filter (C, R_esr, R_load) for all plants
-                    const outC_X = node2X; const outR_X = voutX - 20;
+                    const fbUpX = 340;
+                    setS(false); ctxCanvas.beginPath(); ctxCanvas.moveTo(inJoinX, inY); ctxCanvas.lineTo(ox, inY); ctxCanvas.stroke();
+                    drawNode(fbUpX, inY);
+                    setS(false); ctxCanvas.textAlign = 'right'; ctxCanvas.fillText('V_FB', fbUpX - 5, inY - 10);
+                    ctxCanvas.beginPath(); ctxCanvas.moveTo(fbUpX, inY); ctxCanvas.lineTo(fbUpX, cy + 10); ctxCanvas.stroke();
+                    drawR(fbUpX, cy + 30, 'Rbot', false, true); drawGnd(fbUpX, cy + 50);
+
+                    const fbJoinX = 570, fbTopY = cy - 120, fbBotY = cy - 70;
+                    if (currentSubType === '1') {
+                        setS(false); ctxCanvas.beginPath(); ctxCanvas.moveTo(fbUpX, inY); ctxCanvas.lineTo(fbUpX, fbBotY); ctxCanvas.lineTo(fbJoinX, fbBotY); ctxCanvas.lineTo(fbJoinX, cy); ctxCanvas.stroke();
+                        drawNode(fbJoinX, cy);
+                        ctxCanvas.clearRect((fbUpX+fbJoinX)/2 - 6, fbBotY - 15, 12, 30); drawC((fbUpX+fbJoinX)/2, fbBotY, 'C1', activeComp === 'C1', false);
+                    } else {
+                        setS(false); ctxCanvas.beginPath(); ctxCanvas.moveTo(fbUpX, inY); ctxCanvas.lineTo(fbUpX, fbTopY); ctxCanvas.moveTo(fbUpX, fbTopY); ctxCanvas.lineTo(fbJoinX, fbTopY); ctxCanvas.moveTo(fbUpX, fbBotY); ctxCanvas.lineTo(fbJoinX, fbBotY); ctxCanvas.moveTo(fbJoinX, fbTopY); ctxCanvas.lineTo(fbJoinX, cy); ctxCanvas.stroke();
+                        drawNode(fbUpX, fbBotY); drawNode(fbJoinX, fbBotY); drawNode(fbJoinX, cy);
+                        ctxCanvas.clearRect((fbUpX+fbJoinX)/2 - 6, fbTopY - 15, 12, 30); drawC((fbUpX+fbJoinX)/2, fbTopY, 'C3', activeComp === 'C3', false);
+                        drawR(fbUpX + 60, fbBotY, 'R2', activeComp === 'R2');
+                        ctxCanvas.clearRect(fbJoinX - 60 - 6, fbBotY - 15, 12, 30); drawC(fbJoinX - 60, fbBotY, 'C2', activeComp === 'C2', false);
+                    }
+                    setS(false); ctxCanvas.beginPath(); ctxCanvas.moveTo(ox + 50, cy); ctxCanvas.lineTo(600, cy); ctxCanvas.stroke();
+                    ctxCanvas.textAlign = 'left'; ctxCanvas.textBaseline = 'top'; ctxCanvas.fillText('V_EA_out', 550, cy + 10);
+                } else {
+                    const cy = 100, vinX = 60, node1X = 220, node2X = 380, voutX = 520;
+                    setS(false); ctxCanvas.textAlign='right'; ctxCanvas.fillText('Vin', vinX-10, cy); ctxCanvas.textAlign='left'; ctxCanvas.fillText('Vout', voutX+10, cy);
+                    
+                    if (currentSubType === 'buck') {
+                        setS(false); ctxCanvas.beginPath(); 
+                        ctxCanvas.moveTo(vinX, cy); ctxCanvas.lineTo(115, cy);
+                        ctxCanvas.moveTo(165, cy); ctxCanvas.lineTo(node1X, cy);
+                        ctxCanvas.moveTo(node1X, cy); ctxCanvas.lineTo(285, cy);
+                        ctxCanvas.moveTo(315, cy); ctxCanvas.lineTo(node2X, cy);
+                        ctxCanvas.moveTo(node2X, cy); ctxCanvas.lineTo(voutX, cy); ctxCanvas.stroke();
+                        drawSw(140, cy, false); drawL(300, cy, 'L', activeComp==='L', false);
+                        setS(false); ctxCanvas.beginPath(); ctxCanvas.moveTo(node1X, cy); ctxCanvas.lineTo(node1X, cy+30); ctxCanvas.moveTo(node1X, cy+70); ctxCanvas.lineTo(node1X, cy+100); ctxCanvas.stroke(); 
+                        drawDiode(node1X, cy+50, 'up'); drawGnd(node1X, cy+100);
+                        drawNode(node1X, cy); drawNode(node2X, cy);
+                    } else if (currentSubType === 'boost') {
+                        setS(false); ctxCanvas.beginPath(); 
+                        ctxCanvas.moveTo(vinX, cy); ctxCanvas.lineTo(125, cy);
+                        ctxCanvas.moveTo(155, cy); ctxCanvas.lineTo(node1X, cy);
+                        ctxCanvas.moveTo(node1X, cy); ctxCanvas.lineTo(280, cy);
+                        ctxCanvas.moveTo(320, cy); ctxCanvas.lineTo(node2X, cy);
+                        ctxCanvas.moveTo(node2X, cy); ctxCanvas.lineTo(voutX, cy); ctxCanvas.stroke();
+                        drawL(140, cy, 'L', activeComp==='L', false); drawDiode(300, cy, 'right');
+                        setS(false); ctxCanvas.beginPath(); ctxCanvas.moveTo(node1X, cy); ctxCanvas.lineTo(node1X, cy+25); ctxCanvas.moveTo(node1X, cy+75); ctxCanvas.lineTo(node1X, cy+100); ctxCanvas.stroke(); 
+                        drawSw(node1X, cy+50, true); drawGnd(node1X, cy+100);
+                        drawNode(node1X, cy); drawNode(node2X, cy);
+                    } else if (currentSubType === 'buckboost') {
+                        setS(false); ctxCanvas.beginPath(); 
+                        ctxCanvas.moveTo(vinX, cy); ctxCanvas.lineTo(115, cy);
+                        ctxCanvas.moveTo(165, cy); ctxCanvas.lineTo(node1X, cy);
+                        ctxCanvas.moveTo(node1X, cy); ctxCanvas.lineTo(280, cy);
+                        ctxCanvas.moveTo(320, cy); ctxCanvas.lineTo(node2X, cy);
+                        ctxCanvas.moveTo(node2X, cy); ctxCanvas.lineTo(voutX, cy); ctxCanvas.stroke();
+                        drawSw(140, cy, false); drawDiode(300, cy, 'left'); 
+                        setS(false); ctxCanvas.beginPath(); ctxCanvas.moveTo(node1X, cy); ctxCanvas.lineTo(node1X, cy+35); ctxCanvas.moveTo(node1X, cy+65); ctxCanvas.lineTo(node1X, cy+100); ctxCanvas.stroke(); 
+                        drawL(node1X, cy+50, 'L', activeComp==='L', true); drawGnd(node1X, cy+100);
+                        drawNode(node1X, cy); drawNode(node2X, cy);
+                    }
+
+                    // Common Output Filter Plant
                     setS(false); ctxCanvas.beginPath();
-                    ctxCanvas.moveTo(outC_X, cy); ctxCanvas.lineTo(outC_X, cy+20); ctxCanvas.moveTo(outC_X, cy+40); ctxCanvas.lineTo(outC_X, cy+60);
-                    ctxCanvas.moveTo(outR_X, cy); ctxCanvas.lineTo(outR_X, cy+20); ctxCanvas.moveTo(outR_X, cy+70); ctxCanvas.lineTo(outR_X, cy+100);
-                    ctxCanvas.stroke();
-                    drawC(outC_X, cy+30, 'C', activeComp==='C', true);
-                    drawR(outC_X, cy+80, 'ESR', activeComp==='ESR', true);
-                    drawGnd(outC_X, cy+110);
-                    drawR(outR_X, cy+45, 'R_load', activeComp==='Rload', true);
-                    drawGnd(outR_X, cy+100);
+                    ctxCanvas.moveTo(node2X, cy); ctxCanvas.lineTo(node2X, cy+26); ctxCanvas.moveTo(node2X, cy+34); ctxCanvas.lineTo(node2X, cy+60);
+                    ctxCanvas.moveTo(voutX-20, cy); ctxCanvas.lineTo(voutX-20, cy+25); ctxCanvas.moveTo(voutX-20, cy+65); ctxCanvas.lineTo(voutX-20, cy+100); ctxCanvas.stroke();
+                    drawNode(node2X, cy); drawNode(voutX-20, cy);
+                    drawC(node2X, cy+30, 'C', activeComp==='C', true); drawR(node2X, cy+80, 'ESR', activeComp==='ESR', true); drawGnd(node2X, cy+100);
+                    drawR(voutX-20, cy+45, 'R_load', activeComp==='Rload', true); drawGnd(voutX-20, cy+100);
                 }
             }
 
-            // --- Initialization ---
             UI.typeSelect.addEventListener('change', (e) => {
-                const parts = e.target.value.split('_');
-                currentMode = parts[0]; currentSubType = parts[1];
+                const parts = e.target.value.split('_'); currentMode = parts[0]; currentSubType = parts[1];
                 buildUI(); updateData(); drawCanvas();
             });
 
@@ -656,6 +686,8 @@
                 buildUI(); updateData(); drawCanvas();
             });
 
+            // Initialize defaults from current select value
+            const initParts = UI.typeSelect.value.split('_'); currentMode = initParts[0]; currentSubType = initParts[1];
             buildUI(); updateData(); drawCanvas();
         });
     </script>
